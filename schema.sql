@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict lRChrOSPdZMW6EJyFdZoeAn3eDt0C4dGNccdnkuxC4gH5GhDgsyB6saJwLgLQow
+\restrict WHeGmXkyhKf0YlGEshIrCwdaQO7TKeqEN341IYYD3947Za0RzMg9VZioxhfb2fQ
 
 -- Dumped from database version 18.6
 -- Dumped by pg_dump version 18.6
@@ -62,7 +62,9 @@ ALTER SEQUENCE public.findings_id_seq OWNED BY public.findings.id;
 CREATE TABLE public.rules (
     id integer NOT NULL,
     name text NOT NULL,
-    message text NOT NULL
+    message text NOT NULL,
+    sql_query text,
+    active boolean DEFAULT true
 );
 
 
@@ -195,5 +197,5 @@ ALTER TABLE ONLY public.findings
 -- PostgreSQL database dump complete
 --
 
-\unrestrict lRChrOSPdZMW6EJyFdZoeAn3eDt0C4dGNccdnkuxC4gH5GhDgsyB6saJwLgLQow
+\unrestrict WHeGmXkyhKf0YlGEshIrCwdaQO7TKeqEN341IYYD3947Za0RzMg9VZioxhfb2fQ
 

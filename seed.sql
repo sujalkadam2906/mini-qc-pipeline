@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 6KVYAtWJIwhjcUu2Qn6XensywXdGVl1XJyvJznHa0zoYantfriVBrGw83NScVEg
+\restrict cG2BXgLkRQZhhEew0wdKKkPMlhbSqOMeXBFJBcTuGzR81Xs09fqsJq92eCrY1jb
 
 -- Dumped from database version 18.6
 -- Dumped by pg_dump version 18.6
@@ -23,9 +23,26 @@ SET row_security = off;
 -- Data for Name: rules; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.rules VALUES (1, 'missing_evidence', 'Completed task has no evidence link');
-INSERT INTO public.rules VALUES (2, 'duplicate_task', 'Same VA logged the same task for the same client more than once');
-INSERT INTO public.rules VALUES (3, 'sla_breach', 'Task was completed after its due time');
+INSERT INTO public.rules VALUES (1, 'missing_evidence', 'Completed task has no evidence link', '
+SELECT id FROM work_records
+WHERE status = ''done''
+  AND (evidence_link IS NULL OR TRIM(evidence_link) = '''');
+', true);
+INSERT INTO public.rules VALUES (2, 'duplicate_task', 'Same VA logged the same task for the same client more than once', '
+SELECT id FROM (
+    SELECT id, ROW_NUMBER() OVER (
+        PARTITION BY va_name, client, task
+        ORDER BY id ASC
+    ) AS rn
+    FROM work_records
+) sub
+WHERE rn > 1;
+', true);
+INSERT INTO public.rules VALUES (3, 'sla_breach', 'Task was completed after its due time', '
+SELECT id FROM work_records
+WHERE completed_at > due_at;
+', true);
+INSERT INTO public.rules VALUES (4, 'stale_in_progress', 'Task still in progress after its due time', 'SELECT id FROM work_records WHERE status = ''in_progress'' AND due_at < NOW()', true);
 
 
 --
@@ -50,20 +67,28 @@ INSERT INTO public.work_records VALUES (12, 'Meera', 'Globex', 'Prepare meeting 
 -- Data for Name: findings; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.findings VALUES (101, 2, 1, '2026-10-05 11:23:44.772393');
+INSERT INTO public.findings VALUES (102, 6, 1, '2026-10-05 11:23:44.772393');
+INSERT INTO public.findings VALUES (103, 10, 1, '2026-10-05 11:23:44.772393');
+INSERT INTO public.findings VALUES (104, 5, 2, '2026-10-05 11:23:44.772393');
+INSERT INTO public.findings VALUES (105, 3, 3, '2026-10-05 11:23:44.772393');
+INSERT INTO public.findings VALUES (106, 8, 3, '2026-10-05 11:23:44.772393');
+INSERT INTO public.findings VALUES (107, 10, 3, '2026-10-05 11:23:44.772393');
+INSERT INTO public.findings VALUES (108, 9, 4, '2026-10-05 11:23:44.772393');
 
 
 --
 -- Name: findings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.findings_id_seq', 1, false);
+SELECT pg_catalog.setval('public.findings_id_seq', 108, true);
 
 
 --
 -- Name: rules_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.rules_id_seq', 3, true);
+SELECT pg_catalog.setval('public.rules_id_seq', 7, true);
 
 
 --
@@ -77,5 +102,5 @@ SELECT pg_catalog.setval('public.work_records_id_seq', 12, true);
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 6KVYAtWJIwhjcUu2Qn6XensywXdGVl1XJyvJznHa0zoYantfriVBrGw83NScVEg
+\unrestrict cG2BXgLkRQZhhEew0wdKKkPMlhbSqOMeXBFJBcTuGzR81Xs09fqsJq92eCrY1jb
 
