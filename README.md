@@ -1,2 +1,2 @@
 # Mini QC Pipeline
-Status: draft
+Status: checker and report done
